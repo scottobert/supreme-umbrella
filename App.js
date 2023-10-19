@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import Button from './components/Button';
@@ -17,7 +17,6 @@ export default function App() {
 
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
-      console.log(result);
     } else {
       alert('You did not select any image.');
     }
@@ -25,6 +24,9 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerContainer.text}>Welcome to FoodieSpot!</Text>
+      </View>
       <View style={styles.imageContainer}>
         <ImageViewer
           placeholderImageSource={PlaceholderImage}
@@ -46,12 +48,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#25292e',
     alignItems: 'center',
   },
-  imageContainer: {
+  headerContainer: {
+    text: {
+      color: '#fff',
+      fontSize: 25
+    },
     flex: 1,
-    paddingTop: 58
+    paddingTop: 40
+  },
+  imageContainer: {
+    flex: 3
   },
   footerContainer: {
-    flex: 1 / 3,
+    flex: 1,
     alignItems: 'center',
   },
 });
