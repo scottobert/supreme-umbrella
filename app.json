@@ -32,6 +32,15 @@
       "eas": {
         "projectId": "011948ca-deb7-48f4-8666-f0355f030721"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you upload photos of your favorite spots.",
+          "cameraPermission": "The app accesses your camera to let you take photos of your favorite spots."
+        }
+      ]
+    ]
   }
 }

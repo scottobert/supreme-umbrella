@@ -1,9 +1,14 @@
-import { StyleSheet, Image } from 'react-native';
+import { StyleSheet, Image, ImageSourcePropType } from 'react-native';
 
-export default function ImageViewer({ placeholderImageSource, selectedImage }) {
+export interface IImageViewerProps {
+    placeholderImageSource: ImageSourcePropType;
+    selectedImage: string | null;
+}
+
+const ImageViewer: React.FC<IImageViewerProps> = ({ placeholderImageSource, selectedImage }) => {
     const imageSource = selectedImage ? { uri: selectedImage } : placeholderImageSource;
     return (
-        <Image source={imageSource} style={styles.image} />
+        <Image source={imageSource} style={styles.image} testID="image-viewer" />
     );
 }
 
@@ -14,3 +19,5 @@ const styles = StyleSheet.create({
         borderRadius: 18,
     },
 });
+
+export default ImageViewer;
