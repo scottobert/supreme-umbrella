@@ -1,20 +1,42 @@
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, View, Text, Pressable } from 'react-native';
-import { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import SpotForm, { SpotData } from './components/SpotForm';
 import SpotList from './components/SpotList';
 
-export default function App() {
+const App: React.FC = () => {
+  const [spots, setSpots] = useState<SpotData[]>([]);
   const [editingSpot, setEditingSpot] = useState<SpotData | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const handleEditSpot = (spot: SpotData) => {
-    setEditingSpot(spot);
+  useEffect(() => {
+    loadSpots();
+  }, []);
+
+  const loadSpots = async () => {
+    try {
+      const storedSpots = await AsyncStorage.getItem('spots');
+      if (storedSpots) {
+        setSpots(JSON.parse(storedSpots));
+      }
+    } catch (error) {
+      console.error('Error loading spots:', error);
+    }
   };
 
-  const handleAddNewSpot = () => {
-    setEditingSpot({ id: '', spotName: '', description: '', photoKey: '' });
+  const handleDeleteSpot = async (spotId: string) => {
+    console.log('Deleting spot with ID:', spotId);
+    try {
+      const updatedSpots = spots.filter(spot => spot.id !== spotId);
+      await AsyncStorage.setItem('spots', JSON.stringify(updatedSpots));
+      setSpots(updatedSpots);
+      setEditingSpot(null); // Close the form after deletion
+      console.log('Spot deleted successfully');
+    } catch (error) {
+      console.error('Error deleting spot:', error);
+    }
   };
 
   const handleSaveSpot = useCallback(() => {
@@ -26,19 +48,32 @@ export default function App() {
     setEditingSpot(null);
   }, []);
 
+  const handleAddNewSpot = () => {
+    setEditingSpot({ id: '', spotName: '', description: '', photoKey: '', date: new Date(), rating: 0, favoriteMenuItem: '' });
+  };
+
+  const handleEditSpot = (spot: SpotData) => {
+    setEditingSpot(spot);
+  };
+
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>Welcome to FoodieSpot!</Text>
         </View>
-        {editingSpot ? (
+      {editingSpot ? (
           <View style={styles.formContainer}>
-            <SpotForm 
-              initialData={editingSpot} 
-              onSave={handleSaveSpot} 
-              onCancel={handleCancel}
-            />
+        <SpotForm
+          initialData={editingSpot}
+          onSave={handleSaveSpot}
+          onCancel={handleCancel}          
+          onDelete={() => {
+            if (editingSpot) {
+              handleDeleteSpot(editingSpot.id);
+            }
+          }}
+          />
           </View>
         ) : (
           <View style={styles.listContainer}>
@@ -49,7 +84,7 @@ export default function App() {
           </View>
         )}
         <StatusBar style="auto" />
-      </View>
+    </View>
     </SafeAreaProvider>
   );
 }
@@ -86,3 +121,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+export default React.memo(App);
